@@ -10,23 +10,25 @@ $client = new Client($loop);
 
 $data = json_encode(array('result' => 42));
 
-$request = $client->request('POST', 'https://httpbin.org/post', array(
+$promise = $client->request('POST', 'https://httpbin.org/post', array(
     'Content-Type' => 'application/json',
     'Content-Length' => strlen($data)
 ));
 
-$request->on('response', function (Response $response) {
-    var_dump($response->getHeaders());
+$promise->then(function ($request) use ($data) {
+	$request->on('response', function (Response $response) use ($data) {
+		var_dump($response->getHeaders());
 
-    $response->on('data', function ($chunk) {
-        echo $chunk;
-    });
+		$response->on('data', function ($chunk) {
+			echo $chunk;
+		});
 
-    $response->on('end', function () {
-        echo 'DONE' . PHP_EOL;
-    });
+		$response->on('end', function () {
+			echo 'DONE' . PHP_EOL;
+		});
+	});
+
+	$request->end($data);
 });
-
-$request->end($data);
 
 $loop->run();

@@ -3,6 +3,7 @@
 namespace React\HttpClient;
 
 use React\EventLoop\LoopInterface;
+use React\Promise\Promise;
 use React\Socket\ConnectorInterface;
 use React\Socket\Connector;
 
@@ -23,6 +24,10 @@ class Client
     {
         $requestData = new RequestData($method, $url, $headers, $protocolVersion);
 
-        return new Request($this->connector, $requestData);
+        $connector = $this->connector;
+
+        return new Promise(function ($resolve, $reject) use ($requestData, $connector) {
+            $resolve(new Request($connector, $requestData));
+        });
     }
 }
